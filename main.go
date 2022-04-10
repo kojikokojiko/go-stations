@@ -58,8 +58,8 @@ func realMain() error {
 
 	// mux.HandleFunc("/todos/", handler.NewTODOHandler(&service.TODOService{}).ServeHTTP)
 
-	mux.HandleFunc("/todos/", handler.NewTODOHandler(service.NewTODOService(todoDB)).ServeHTTP)
-	mux.HandleFunc("/healthz/", handler.NewHealthzHandler().ServeHTTP)
+	mux.HandleFunc("/todos", handler.NewTODOHandler(service.NewTODOService(todoDB)).ServeHTTP)
+	mux.HandleFunc("/healthz", handler.NewHealthzHandler().ServeHTTP)
 	http.ListenAndServe(port, mux)
 
 	return nil

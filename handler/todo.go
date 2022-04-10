@@ -29,24 +29,34 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 		if cdr.Subject == "" {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+
+			// err.Errorを消して、エラー分をべた書きにしたら治ったなぜ？cdr
+
+			http.Error(w, "400　BadRequest", http.StatusBadRequest)
+			log.Println("sdfsdfdsfsdfds")
 			return
 		} else {
+
 			ctx := r.Context()
+
 			todo, err := h.svc.CreateTODO(ctx, cdr.Subject, cdr.Description)
+
 			if err != nil {
 				return
 			}
-			log.Println(todo)
 
 			response := &model.CreateTODOResponse{TODO: todo}
+
 			err = json.NewEncoder(w).Encode(response)
+
 			if err != nil {
 				fmt.Println(err)
 			}
-
+			return
 		}
-
+	default:
+		log.Println("requiest is not post")
+		http.Error(w, "requiest is not post", http.StatusBadRequest)
 	}
 
 }
