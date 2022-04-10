@@ -73,8 +73,10 @@ func (s *TODOService) UpdateTODO(ctx context.Context, id int64, subject, descrip
 	if num == 0 {
 		return nil, &model.ErrNotFound{}
 	}
+	// log.Println(id)
 
 	var todo model.TODO
+	todo.ID = id
 	err = s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt)
 
 	return &todo, nil
