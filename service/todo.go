@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/TechBowl-japan/go-stations/model"
 )
@@ -38,6 +39,7 @@ func (s *TODOService) CreateTODO(ctx context.Context, subject, description strin
 
 	id, _ := res.LastInsertId()
 	var todo model.TODO
+	todo.ID = id
 	err = s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt)
 
 	return &todo, nil
@@ -50,7 +52,56 @@ func (s *TODOService) ReadTODO(ctx context.Context, prevID, size int64) ([]*mode
 		readWithID = `SELECT id, subject, description, created_at, updated_at FROM todos WHERE id < ? ORDER BY id DESC LIMIT ?`
 	)
 
-	return nil, nil
+	var todos []*model.TODO
+	todos = []*model.TODO{}
+
+	if prevID == 0 {
+
+		rows, _ := s.db.QueryContext(ctx, read, size)
+
+		for rows.Next() {
+			// todo := model.TODO{}
+			var todo model.TODO
+			// todo = model.TODO{}
+			// log.Println(todo.ID)
+			err := rows.Scan(&todo.ID, &todo.Subject,
+				&todo.Description,
+				&todo.UpdatedAt, &todo.UpdatedAt)
+			if err != nil {
+				log.Println("EEEE")
+			} else {
+				todos = append(todos, &todo)
+
+			}
+		}
+	} else {
+		log.Println(prevID, size)
+		rows, _ := s.db.QueryContext(ctx, readWithID, prevID, size)
+		for rows.Next() {
+			// todo := model.TODO{}
+			var todo model.TODO
+			err := rows.Scan(&todo.ID, &todo.Subject,
+				&todo.Description,
+				&todo.UpdatedAt, &todo.UpdatedAt)
+
+			log.Println(todo.ID)
+			log.Println(todo.Subject)
+			if err != nil {
+				log.Println("EEEE")
+			} else {
+				todos = append(todos, &todo)
+				log.Println(todos[0].ID)
+			}
+		}
+
+	}
+
+	// rows, err := s.db.QueryContext(ctx, read, size)
+	// aarows, err := s.db.QueryContext(ctx, readWithID, prevID, size)
+
+	// .Scan(&todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt)
+
+	return todos, nil
 }
 
 // UpdateTODO updates the TODO on DB.

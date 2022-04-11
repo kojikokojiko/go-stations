@@ -19,6 +19,46 @@ type TODOHandler struct {
 func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
+
+	case http.MethodPut:
+		utr := model.UpdateTODORequest{}
+		err := json.NewDecoder(r.Body).Decode(&utr)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer r.Body.Close()
+		if utr.ID == 0 {
+			// err.Errorを消して、エラー分をべた書きにしたら治ったなぜ？cdr
+
+			http.Error(w, "400　BadRequest", http.StatusBadRequest)
+			// log.Println("sdfsdfdsfsdfds")
+			return
+		}
+		if utr.Subject == "" {
+
+			// err.Errorを消して、エラー分をべた書きにしたら治ったなぜ？cdr
+
+			http.Error(w, "400　BadRequest", http.StatusBadRequest)
+			// log.Println("sdfsdfdsfsdfds")
+			return
+		}
+		ctx := r.Context()
+
+		todo, err := h.svc.UpdateTODO(ctx, int64(utr.ID), utr.Subject, utr.Description)
+		if err != nil {
+			http.Error(w, "400　BadRequest", http.StatusBadRequest)
+		}
+
+		response := &model.UpdateTODOResponse{TODO: todo}
+
+		err = json.NewEncoder(w).Encode(response)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+		return
+
 	case http.MethodPost:
 		cdr := model.CreateTODORequest{}
 

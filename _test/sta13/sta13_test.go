@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -25,10 +26,10 @@ func TestStation13(t *testing.T) {
 	}
 
 	t.Cleanup(func() {
-		if err := os.Remove(dbPath); err != nil {
-			t.Errorf("テスト用のDBファイルの削除に失敗しました: %v", err)
-			return
-		}
+		// if err := os.Remove(dbPath); err != nil {
+		// 	t.Errorf("テスト用のDBファイルの削除に失敗しました: %v", err)
+		// 	return
+		// }
 	})
 
 	todoDB, err := db.NewDB(dbPath)
@@ -58,6 +59,8 @@ func TestStation13(t *testing.T) {
 
 	r := router.NewRouter(todoDB)
 	srv := httptest.NewServer(r)
+	srv.URL = "http://127.0.0.1:8080"
+	log.Println(srv.URL)
 	defer srv.Close()
 
 	testcases := map[string]struct {
